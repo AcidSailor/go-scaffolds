@@ -1,0 +1,79 @@
+# Copier configuration for github.com/acidsailor/go-scaffolds.
+# One questionnaire selects one of three template trees under templates/.
+_min_copier_version: "9.0.0"
+_subdirectory: "templates/go-{{ project_type }}"
+_answers_file: ".copier-answers.yml"
+
+# Only files ending in .jinja are Jinja-rendered (suffix stripped on output);
+# every other file is copied verbatim.
+_templates_suffix: ".jinja"
+
+project_type:
+  type: str
+  help: What kind of Go project is this?
+  choices:
+    - cli
+    - library
+    - mcp
+
+project_name:
+  type: str
+  help: Project name (also the binary / module leaf, kebab-case)
+  validator: >-
+    {% if not (project_name | regex_search('^[a-z][a-z0-9-]*$')) %}
+    project_name must be lowercase letters, digits and dashes, starting with a letter
+    {% endif %}
+
+module_path:
+  type: str
+  help: Go module path
+  default: "github.com/acidsailor/{{ project_name }}"
+
+author:
+  type: str
+  help: Author
+  default: "Denis Shaporov / acidsailor"
+
+author_email:
+  type: str
+  help: Author email (for mcpb manifest / metadata)
+  default: "d@shaporov.dev"
+
+go_version:
+  type: str
+  help: Go version
+  default: "1.26"
+
+# cli-only: which CLI framework skeleton to render.
+cli_framework:
+  type: str
+  help: CLI framework
+  choices:
+    - cobra
+    - kong
+  default: cobra
+  when: "{{ project_type == 'cli' }}"
+
+# mcp-only: human title shown to MCP clients / in the mcpb manifest.
+mcp_title:
+  type: str
+  help: Human-readable MCP server title
+  default: "{{ project_name }} MCP"
+  when: "{{ project_type == 'mcp' }}"
+
+# A user _exclude replaces Copier's defaults, so the defaults are re-listed.
+# The update-guarded entries make source/go.mod/README "seed-once": rendered on
+# fresh `copier copy`, never rendered on `copier update` (so business logic is
+# never merged and stub files are never recreated in adopted repos).
+_exclude:
+  - "copier.yaml"
+  - "copier.yml"
+  - "~*"
+  - "*.py[co]"
+  - "__pycache__"
+  - ".git"
+  - ".DS_Store"
+  - ".svn"
+  - "{% if _copier_operation == 'update' -%}*.go{% endif %}"
+  - "{% if _copier_operation == 'update' -%}go.mod{% endif %}"
+  - "{% if _copier_operation == 'update' -%}README.md{% endif %}"

@@ -1,0 +1,32 @@
+name: go-ci
+
+on:
+  workflow_call:
+    inputs:
+      go-version-file:
+        description: Path to go.mod used to pick the Go version.
+        type: string
+        default: go.mod
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: ${{ inputs.go-version-file }}
+      - name: Set up Task
+        uses: arduino/setup-task@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          install-only: true
+      - name: Verify fmt + lint (fail-fast)
+        run: task ci
+      - name: Test
+        run: task test

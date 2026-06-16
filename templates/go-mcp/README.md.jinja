@@ -1,0 +1,15 @@
+# {{ project_name }}
+
+{{ mcp_title }} — an MCP server built on
+[mcpkit](https://github.com/acidsailor/mcpkit).
+
+## Run
+
+```bash
+task run            # stdio (default)
+{{ project_name | upper | replace('-', '_') }}_TRANSPORT=http task run
+```
+
+## License
+
+AGPL-3.0-or-later. See [LICENSE](LICENSE).

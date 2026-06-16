@@ -1,0 +1,32 @@
+// Package cmd holds the {{ project_name }} cobra command tree.
+package cmd
+
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
+
+var rootCmd = &cobra.Command{
+	Use:   "{{ project_name }}",
+	Short: "{{ project_name }} — a CLI tool.",
+}
+
+// Execute runs the root command.
+func Execute() error { return rootCmd.Execute() }
+
+var helloCmd = &cobra.Command{
+	Use:   "hello [name]",
+	Short: "Print a greeting.",
+	Args:  cobra.MaximumNArgs(1),
+	RunE: func(_ *cobra.Command, args []string) error {
+		name := "world"
+		if len(args) == 1 {
+			name = args[0]
+		}
+		fmt.Printf("hello, %s\n", name)
+		return nil
+	},
+}
+
+func init() { rootCmd.AddCommand(helloCmd) }

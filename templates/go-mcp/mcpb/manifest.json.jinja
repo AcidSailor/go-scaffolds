@@ -1,0 +1,33 @@
+{
+  "manifest_version": "0.3",
+  "name": "{{ project_name }}",
+  "display_name": "{{ mcp_title }}",
+  "version": "",
+  "description": "{{ mcp_title }}.",
+  "author": {
+    "name": "{{ author }} <{{ author_email }}>",
+    "url": "https://github.com/acidsailor"
+  },
+  "server": {
+    "type": "binary",
+    "entry_point": "server/{{ project_name }}-darwin-arm64",
+    "mcp_config": {
+      "command": "${__dirname}/server/{{ project_name }}-darwin-arm64",
+      "args": [],
+      "env": {},
+      "platform_overrides": {
+        "linux": {
+          "command": "${__dirname}/server/{{ project_name }}-linux-amd64"
+        },
+        "win32": {
+          "command": "${__dirname}/server/{{ project_name }}-windows-amd64.exe"
+        }
+      }
+    }
+  },
+  "tools_generated": true,
+  "compatibility": {
+    "platforms": ["darwin", "linux", "win32"]
+  },
+  "license": "AGPL-3.0-or-later"
+}

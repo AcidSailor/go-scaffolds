@@ -1,0 +1,15 @@
+package cmd
+
+import "fmt"
+
+var (
+	version = "none"
+	commit  = "none"
+	date    = "none"
+)
+
+// SetVersionInfo injects build metadata from main.
+func SetVersionInfo(v, c, d string) {
+	version, commit, date = v, c, d
+	rootCmd.Version = fmt.Sprintf("%s (%s) %s", version, commit, date)
+}

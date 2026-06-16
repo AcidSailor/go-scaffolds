@@ -1,0 +1,54 @@
+// Command {{ project_name }} runs an MCP server.
+package main
+
+import (
+	"context"
+	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"{{ module_path }}/internal/config"
+	"{{ module_path }}/internal/server"
+	"{{ module_path }}/internal/telemetry"
+)
+
+func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		slog.Error("load config", "error", err)
+		os.Exit(1)
+	}
+
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	if err := run(ctx, cfg); err != nil {
+		slog.ErrorContext(ctx, "{{ project_name }}", "error", err)
+		os.Exit(1)
+	}
+}
+
+func run(ctx context.Context, cfg *config.Config) error {
+	slog.InfoContext(ctx, "starting {{ project_name }}",
+		"version", config.Version,
+		"commit", config.Commit,
+		"date", config.Date,
+	)
+
+	shutdown, err := telemetry.Setup(ctx, config.Name, config.Version)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = shutdown(context.Background()) }()
+
+	srv, err := server.New(ctx, cfg)
+	if err != nil {
+		return err
+	}
+	return srv.ListenAndServe(ctx)
+}

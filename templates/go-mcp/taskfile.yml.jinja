@@ -1,0 +1,61 @@
+version: "3"
+
+tasks:
+  run:
+    desc: Run the {{ project_name }} MCP server
+    cmds:
+      - go run ./cmd/{{ project_name }}
+
+  lint:
+    desc: Run formatters + linters with autofix (mutates files)
+    cmds:
+      - golangci-lint fmt
+      - golangci-lint run --fix
+
+  ci:
+    desc: Read-only fmt + lint verification for CI (fail-fast)
+    cmds:
+      - golangci-lint fmt --diff
+      - golangci-lint run
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -race ./...
+
+  build:
+    desc: Local snapshot build (all platforms)
+    cmds:
+      - goreleaser release --snapshot --clean
+
+  _pack-mcpb:
+    internal: true
+    cmds:
+      - |
+        rm -rf dist/mcpb && mkdir -p dist/mcpb/server
+        cp -r mcpb/. dist/mcpb/
+        cp dist/{{ project_name }}_darwin_arm64*/{{ project_name }}    dist/mcpb/server/{{ project_name }}-darwin-arm64
+        cp dist/{{ project_name }}_linux_amd64_v1/{{ project_name }}       dist/mcpb/server/{{ project_name }}-linux-amd64
+        cp dist/{{ project_name }}_windows_amd64_v1/{{ project_name }}.exe dist/mcpb/server/{{ project_name }}-windows-amd64.exe
+      - |
+        jq --arg v "$(jq -r .version dist/metadata.json)" '.version = $v' \
+          mcpb/manifest.json > dist/mcpb/manifest.json
+      - npx -y @anthropic-ai/mcpb pack dist/mcpb/ dist/{{ project_name }}.mcpb
+
+  pack:
+    desc: Local snapshot build + mcpb bundle
+    cmds:
+      - goreleaser release --snapshot --clean
+      - task: _pack-mcpb
+
+  release:
+    desc: Tagged release — GoReleaser + mcpb bundle uploaded to the GH release
+    cmds:
+      - goreleaser release --clean
+      - task: _pack-mcpb
+      - gh release upload "$(jq -r .tag dist/metadata.json)" dist/{{ project_name }}.mcpb --clobber
+
+  update:
+    desc: Pull latest go-scaffolds template tooling (3-way merge; source untouched)
+    cmds:
+      - uvx copier update

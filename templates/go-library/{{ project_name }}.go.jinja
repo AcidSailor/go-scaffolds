@@ -1,0 +1,40 @@
+package {{ project_name | replace('-', '') }}
+
+import (
+	"net/http"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+)
+
+// Client is a minimal HTTP-JSON API client. Replace the placeholder method
+// with your API surface.
+type Client struct {
+	baseURL string
+	http    *http.Client
+}
+
+// Option configures a Client.
+type Option func(*Client)
+
+// WithHTTPClient overrides the underlying *http.Client.
+func WithHTTPClient(h *http.Client) Option {
+	return func(c *Client) { c.http = h }
+}
+
+// New constructs a Client. The default *http.Client is instrumented with
+// otelhttp so requests produce spans when a TracerProvider is configured.
+func New(baseURL string, opts ...Option) *Client {
+	c := &Client{
+		baseURL: baseURL,
+		http: &http.Client{
+			Transport: otelhttp.NewTransport(http.DefaultTransport),
+		},
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
+}
+
+// BaseURL returns the configured base URL.
+func (c *Client) BaseURL() string { return c.baseURL }

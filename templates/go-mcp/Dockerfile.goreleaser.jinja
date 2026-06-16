@@ -1,0 +1,4 @@
+FROM scratch
+ARG TARGETPLATFORM
+COPY ${TARGETPLATFORM}/{{ project_name }} /{{ project_name }}
+ENTRYPOINT ["/{{ project_name }}"]

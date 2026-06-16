@@ -1,0 +1,51 @@
+// Package config holds the env-driven runtime configuration for the
+// {{ project_name }} server.
+package config
+
+import (
+	"errors"
+	"time"
+
+	"github.com/caarlos0/env/v11"
+
+	"github.com/acidsailor/mcpkit/server"
+)
+
+// Name is the MCP server implementation name (also the module path).
+const Name = "{{ module_path }}"
+
+// Version, Commit, and Date are overridden at build time via -ldflags.
+var (
+	Version = "none"
+	Commit  = "none"
+	Date    = "none"
+)
+
+// Config holds all runtime configuration loaded from environment variables.
+type Config struct {
+	Endpoint  string           `env:"{{ project_name | upper | replace('-', '_') }}_ENDPOINT"`
+	Timeout   time.Duration    `env:"{{ project_name | upper | replace('-', '_') }}_TIMEOUT"   envDefault:"30s"`
+	Addr      string           `env:"{{ project_name | upper | replace('-', '_') }}_ADDR"      envDefault:":8080"`
+	Transport server.Transport `env:"{{ project_name | upper | replace('-', '_') }}_TRANSPORT" envDefault:"stdio"`
+}
+
+// Load parses Config from environment variables.
+func Load() (*Config, error) {
+	cfg, err := env.ParseAs[Config]()
+	if err != nil {
+		return nil, err
+	}
+	return &cfg, nil
+}
+
+// Validate checks the project-specific configuration. Transport/addr validity
+// is enforced by mcpkit/server at serve time.
+func (c *Config) Validate() error {
+	if c == nil {
+		return errors.New("config is nil")
+	}
+	if c.Timeout <= 0 {
+		return errors.New("non-positive timeout")
+	}
+	return nil
+}

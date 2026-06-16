@@ -1,0 +1,39 @@
+version: "3"
+
+tasks:
+  run:
+    desc: Run {{ project_name }}
+    cmds:
+      - go run .
+
+  lint:
+    desc: Run formatters + linters with autofix (mutates files)
+    cmds:
+      - golangci-lint fmt
+      - golangci-lint run --fix
+
+  ci:
+    desc: Read-only fmt + lint verification for CI (fail-fast)
+    cmds:
+      - golangci-lint fmt --diff
+      - golangci-lint run
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -race ./...
+
+  build:
+    desc: Local snapshot build (all platforms)
+    cmds:
+      - goreleaser release --snapshot --clean
+
+  release:
+    desc: Tagged release via GoReleaser (CI)
+    cmds:
+      - goreleaser release --clean
+
+  update:
+    desc: Pull latest go-scaffolds template tooling (3-way merge; source untouched)
+    cmds:
+      - uvx copier update

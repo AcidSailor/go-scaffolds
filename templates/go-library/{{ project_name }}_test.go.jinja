@@ -1,0 +1,14 @@
+package {{ project_name | replace('-', '') }}_test
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	{{ project_name | replace('-', '') }} "{{ module_path }}"
+)
+
+func TestNewSetsBaseURL(t *testing.T) {
+	c := {{ project_name | replace('-', '') }}.New("https://example.test")
+	assert.Equal(t, "https://example.test", c.BaseURL())
+}

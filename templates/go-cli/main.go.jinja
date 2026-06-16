@@ -1,0 +1,64 @@
+{%- if cli_framework == 'cobra' %}
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"{{ module_path }}/cmd"
+)
+
+var (
+	version = "none"
+	commit  = "none"
+	date    = "none"
+)
+
+func main() {
+	cmd.SetVersionInfo(version, commit, date)
+	if err := cmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+{%- else %}
+package main
+
+import (
+	"fmt"
+
+	"github.com/alecthomas/kong"
+)
+
+var (
+	version = "none"
+	commit  = "none"
+	date    = "none"
+)
+
+// CLI is the {{ project_name }} command-line interface.
+type CLI struct {
+	Version kong.VersionFlag `help:"Print version and exit."`
+	Hello   HelloCmd         `cmd:"" help:"Print a greeting."`
+}
+
+// HelloCmd is a sample subcommand.
+type HelloCmd struct {
+	Name string `arg:"" optional:"" default:"world" help:"Who to greet."`
+}
+
+// Run executes the hello subcommand.
+func (c *HelloCmd) Run() error {
+	fmt.Printf("hello, %s\n", c.Name)
+	return nil
+}
+
+func main() {
+	var cli CLI
+	ctx := kong.Parse(&cli,
+		kong.Name("{{ project_name }}"),
+		kong.Vars{"version": fmt.Sprintf("%s (%s) %s", version, commit, date)},
+	)
+	ctx.FatalIfErrorf(ctx.Run())
+}
+{%- endif %}

@@ -1,0 +1,12 @@
+module {{ module_path }}
+
+go {{ go_version }}
+
+require (
+{%- if cli_framework == 'cobra' %}
+	github.com/spf13/cobra v1.10.2
+{%- else %}
+	github.com/alecthomas/kong v1.15.0
+{%- endif %}
+	github.com/stretchr/testify v1.11.1
+)

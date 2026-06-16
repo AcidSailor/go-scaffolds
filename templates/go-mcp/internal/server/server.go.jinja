@@ -1,0 +1,50 @@
+// Package server wires the API client into an MCP server.
+package server
+
+import (
+	"context"
+	"net/http"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+
+	mcpkitserver "github.com/acidsailor/mcpkit/server"
+
+	"{{ module_path }}/internal/config"
+	"{{ module_path }}/internal/tools"
+)
+
+const serverInstructions = `{{ mcp_title }}. Replace this with guidance describing the available tools and the typical call flow.`
+
+// New builds an MCP server with all tools registered and wraps it in an
+// mcpkit server configured from cfg. Exposes whichever transport cfg selects
+// (stdio / http / both).
+func New(_ context.Context, cfg *config.Config) (*mcpkitserver.Server, error) {
+	if err := cfg.Validate(); err != nil {
+		return nil, err
+	}
+
+	// httpClient is otelhttp-instrumented; use it for the upstream API client.
+	httpClient := &http.Client{
+		Timeout:   cfg.Timeout,
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
+	_ = httpClient // wire into your API client constructor.
+
+	mcpServer := mcp.NewServer(
+		&mcp.Implementation{
+			Name:    config.Name,
+			Title:   "{{ mcp_title }}",
+			Version: config.Version,
+		},
+		&mcp.ServerOptions{Instructions: serverInstructions},
+	)
+
+	tools.Register(mcpServer)
+
+	return mcpkitserver.New(
+		mcpServer,
+		mcpkitserver.WithAddr(cfg.Addr),
+		mcpkitserver.WithTransport(cfg.Transport),
+	), nil
+}

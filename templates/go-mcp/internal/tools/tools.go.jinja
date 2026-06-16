@@ -1,0 +1,32 @@
+// Package tools registers the MCP tools.
+package tools
+
+import (
+	"context"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
+
+	"github.com/acidsailor/mcpkit/toolkit"
+)
+
+// PingInput is the input for the sample ping tool.
+type PingInput struct {
+	Message string `json:"message" jsonschema:"a message to echo back"`
+}
+
+// PingOutput is the output for the sample ping tool.
+type PingOutput struct {
+	Echo string `json:"echo"`
+}
+
+// Register registers all tools on the MCP server. Replace the sample ping
+// tool with your real read/write tools (toolkit.AddRead / toolkit.AddWrite).
+func Register(s *mcp.Server) {
+	toolkit.AddRead(toolkit.New(
+		s, "ping", "Echo a message back.",
+		toolkit.InputSchema[PingInput](),
+		func(_ context.Context, in PingInput) (PingOutput, error) {
+			return PingOutput{Echo: in.Message}, nil
+		},
+	))
+}
