@@ -24,6 +24,16 @@ tasks:
       - task: lint
       - task: test
 
+  build:
+    desc: Local snapshot release (validates GoReleaser config; no publish)
+    cmds:
+      - goreleaser release --snapshot --clean --skip=publish
+
+  release:
+    desc: Tagged release via GoReleaser — GitHub Release + changelog (CI)
+    cmds:
+      - goreleaser release --clean
+
   update:
     desc: Pull latest go-scaffolds template tooling (3-way merge; source untouched)
     cmds:
