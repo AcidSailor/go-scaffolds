@@ -14,9 +14,13 @@ jobs:
       - name: Fetch Dependabot metadata
         id: meta
         uses: dependabot/fetch-metadata@v3
-      - name: Enable auto-merge for patch and minor updates
+      - name: Merge patch and minor updates
+        # go-scaffolds has no CI check of its own (its workflows are
+        # workflow_call-only), so `--auto` cannot latch onto a pending check and
+        # GitHub rejects it on an already-mergeable PR. Try auto-merge first, then
+        # fall back to an immediate squash merge.
         if: steps.meta.outputs.update-type == 'version-update:semver-patch' || steps.meta.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
+        run: gh pr merge --auto --squash "$PR_URL" || gh pr merge --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
