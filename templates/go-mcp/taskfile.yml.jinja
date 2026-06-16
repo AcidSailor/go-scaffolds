@@ -56,6 +56,6 @@ tasks:
       - gh release upload "$(jq -r .tag dist/metadata.json)" dist/{{ project_name }}.mcpb --clobber
 
   update:
-    desc: Pull latest go-scaffolds template tooling (3-way merge; source untouched)
+    desc: Pull latest go-scaffolds v1 template tooling (3-way merge; source untouched)
     cmds:
-      - uvx copier update
+      - uvx copier update --vcs-ref v1
