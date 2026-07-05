@@ -19,7 +19,7 @@ jobs:
         with:
           go-version-file: ${{ inputs.go-version-file }}
       - name: Set up Task
-        uses: arduino/setup-task@v2
+        uses: arduino/setup-task@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install golangci-lint
