@@ -4,6 +4,7 @@ package server
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -42,9 +43,25 @@ func New(_ context.Context, cfg *config.Config) (*mcpkitserver.Server, error) {
 
 	tools.Register(mcpServer)
 
-	return mcpkitserver.New(
-		mcpServer,
-		mcpkitserver.WithAddr(cfg.Addr),
+	opts := []mcpkitserver.Option{
 		mcpkitserver.WithTransport(cfg.Transport),
-	), nil
+	}
+	// The http/both transports serve a caller-owned *http.Server; only build
+	// one when it will actually be served (stdio ignores it).
+	if cfg.Transport != mcpkitserver.Stdio {
+		// A stateful session (the default) is required for write tools gated by
+		// MCP elicitation. Read-only servers can set Stateless:true +
+		// JSONResponse:true to scale horizontally without session affinity.
+		handler := mcp.NewStreamableHTTPHandler(
+			func(*http.Request) *mcp.Server { return mcpServer },
+			&mcp.StreamableHTTPOptions{Stateless: false},
+		)
+		opts = append(opts, mcpkitserver.WithHTTPServer(&http.Server{
+			Addr:              cfg.Addr,
+			Handler:           handler,
+			ReadHeaderTimeout: 30 * time.Second,
+		}))
+	}
+
+	return mcpkitserver.New(mcpServer, opts...), nil
 }
