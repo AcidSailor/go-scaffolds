@@ -8,7 +8,7 @@ import (
 	{{ project_name | replace('-', '') }} "{{ module_path }}"
 )
 
-func TestNewSetsBaseURL(t *testing.T) {
-	c := {{ project_name | replace('-', '') }}.New("https://example.test")
+func TestNewClientSetsBaseURL(t *testing.T) {
+	c := {{ project_name | replace('-', '') }}.NewClient("https://example.test")
 	assert.Equal(t, "https://example.test", c.BaseURL())
 }

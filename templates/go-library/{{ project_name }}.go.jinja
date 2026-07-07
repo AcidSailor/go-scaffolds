@@ -21,9 +21,9 @@ func WithHTTPClient(h *http.Client) Option {
 	return func(c *Client) { c.http = h }
 }
 
-// New constructs a Client. The default *http.Client is instrumented with
+// NewClient constructs a Client. The default *http.Client is instrumented with
 // otelhttp so requests produce spans when a TracerProvider is configured.
-func New(baseURL string, opts ...Option) *Client {
+func NewClient(baseURL string, opts ...Option) *Client {
 	c := &Client{
 		baseURL: baseURL,
 		http: &http.Client{
