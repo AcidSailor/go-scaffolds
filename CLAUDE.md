@@ -27,7 +27,7 @@ Standard task targets across all templates (`task <name>`):
 - `lint` — `golangci-lint fmt` + `run --fix` (mutates files).
 - `ci` — read-only `golangci-lint fmt --diff` + `run` (fail-fast, used by CI).
 - `test` — `go test -race ./...`.
-- `update` — `uvx copier update` (pull latest template tooling; source untouched).
+- `update` — `uvx copier update --defaults` (pull latest template tooling; source untouched; reuses saved answers, no prompts).
 - cli/mcp also have `build` (`goreleaser release --snapshot --clean`) and `release`; mcp adds `pack` / `_pack-mcpb` for the `.mcpb` bundle.
 
 ## Testing template changes

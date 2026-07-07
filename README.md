@@ -21,8 +21,8 @@ uvx copier copy --data project_type=cli --data project_name=foo --data cli_frame
 uvx copier copy --data project_type=mcp --data project_name=foomcp gh:acidsailor/go-scaffolds <dest>
 ```
 
-Update a generated project later: `uvx copier update` (uses the saved
-`.copier-answers.yml`).
+Update a generated project later: `task update` (runs `uvx copier update
+--defaults`, reusing the saved `.copier-answers.yml` without re-prompting).
 
 ## Reusable workflows
 
