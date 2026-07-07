@@ -3,7 +3,7 @@ module {{ module_path }}
 go {{ go_version }}
 
 require (
-	github.com/acidsailor/mcpkit v0.1.0
+	github.com/acidsailor/mcpkit v0.6.0
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/modelcontextprotocol/go-sdk v1.6.1
 	github.com/stretchr/testify v1.11.1
@@ -12,3 +12,5 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.44.0
 	go.opentelemetry.io/otel/sdk v1.44.0
 )
+
+tool github.com/acidsailor/mcpkit/cmd/mcpbstage

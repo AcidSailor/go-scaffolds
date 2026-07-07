@@ -31,16 +31,8 @@ tasks:
   _pack-mcpb:
     internal: true
     cmds:
-      - |
-        rm -rf dist/mcpb && mkdir -p dist/mcpb/server
-        cp -r mcpb/. dist/mcpb/
-        cp dist/{{ project_name }}_darwin_arm64*/{{ project_name }}    dist/mcpb/server/{{ project_name }}-darwin-arm64
-        cp dist/{{ project_name }}_linux_amd64_v1/{{ project_name }}       dist/mcpb/server/{{ project_name }}-linux-amd64
-        cp dist/{{ project_name }}_windows_amd64_v1/{{ project_name }}.exe dist/mcpb/server/{{ project_name }}-windows-amd64.exe
-      - |
-        jq --arg v "$(jq -r .version dist/metadata.json)" '.version = $v' \
-          mcpb/manifest.json > dist/mcpb/manifest.json
-      - npx -y @anthropic-ai/mcpb pack dist/mcpb/ dist/{{ project_name }}.mcpb
+      - go tool mcpbstage --dist dist --manifest mcpb/manifest.json --out dist/mcpb
+      - npx -y @anthropic-ai/mcpb@2.1.2 pack dist/mcpb dist/{{ project_name }}.mcpb
 
   pack:
     desc: Local snapshot build + mcpb bundle
