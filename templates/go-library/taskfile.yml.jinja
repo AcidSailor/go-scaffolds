@@ -44,7 +44,9 @@ tasks:
     desc: Cut & push the next svu tag — fires the GoReleaser `release` job in CI
     cmds:
       - |
+        set -euo pipefail
         next=$(svu next --v0)
+        if [ -z "$next" ]; then echo "svu returned no version — is svu installed?" >&2; exit 1; fi
         if [ "$next" = "$(svu current)" ]; then echo "nothing to release (at $next)"; exit 0; fi
         git tag -a "$next" -m "release $next"
         git push origin "$next"
