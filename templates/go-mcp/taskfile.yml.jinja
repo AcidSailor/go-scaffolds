@@ -23,6 +23,12 @@ tasks:
     cmds:
       - go test -race ./...
 
+  check:
+    desc: Local composite — lint (mutating) + tests
+    cmds:
+      - task: lint
+      - task: test
+
   build:
     desc: Local snapshot build (all platforms)
     cmds:
@@ -46,6 +52,24 @@ tasks:
       - goreleaser release --clean
       - task: _pack-mcpb
       - gh release upload "$(jq -r .tag dist/metadata.json)" dist/{{ project_name }}.mcpb --clobber
+
+  release-plan:
+    desc: Preview the next release version from conventional commits (svu; read-only)
+    silent: true
+    cmds:
+      - svu next --v0
+
+  release-tag:
+    desc: Cut & push the next svu tag — fires the GoReleaser `release` job in CI
+    cmds:
+      - |
+        set -euo pipefail
+        next=$(svu next --v0)
+        if [ -z "$next" ]; then echo "svu returned no version — is svu installed?" >&2; exit 1; fi
+        if [ "$next" = "$(svu current)" ]; then echo "nothing to release (at $next)"; exit 0; fi
+        git tag -a "$next" -m "release $next"
+        git push origin "$next"
+        echo "pushed $next → CI will build the release"
 
   update:
     desc: Pull latest go-scaffolds v1 template tooling (3-way merge; source untouched; no prompts)
