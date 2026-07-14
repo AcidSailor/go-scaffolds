@@ -14,8 +14,17 @@ jobs:
       - name: Fetch Dependabot metadata
         id: meta
         uses: dependabot/fetch-metadata@v3
-      - name: Enable auto-merge for patch and minor updates
-        if: steps.meta.outputs.update-type == 'version-update:semver-patch' || steps.meta.outputs.update-type == 'version-update:semver-minor'
+      # Auto-merge every patch bump, and minor bumps too — EXCEPT for
+      # first-party acidsailor libraries. Those are v0 (0.y.z), where a minor
+      # bump is a breaking change per SemVer, so they need a human to review.
+      # A green CI check here only proves the consumer still compiles and its
+      # own tests pass; it won't catch a behavioural break in an uncovered
+      # path. Relax the `!contains(...)` guard once these libraries reach v1.
+      - name: Enable auto-merge
+        if: >
+          steps.meta.outputs.update-type == 'version-update:semver-patch' ||
+          (steps.meta.outputs.update-type == 'version-update:semver-minor' &&
+          !contains(steps.meta.outputs.dependency-names, 'github.com/acidsailor/'))
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
