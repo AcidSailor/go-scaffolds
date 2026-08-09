@@ -1,7 +1,8 @@
 # go-scaffolds
 
 Copier templates for Go projects plus reusable GitHub Actions workflows.
-Generated projects are licensed AGPL-3.0-or-later.
+Generated libraries use Apache-2.0. Generated CLIs and MCP servers use
+AGPL-3.0-or-later.
 
 ## Templates
 
