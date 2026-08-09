@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-`go-scaffolds` is **not a Go project** — it is a [Copier](https://copier.readthedocs.io/) template collection plus reusable GitHub Actions workflows. There is no Go module, no build, and no test suite at the repo root. The "code" here is Jinja-templated source that gets rendered into *generated* downstream Go projects. Generated projects are licensed AGPL-3.0-or-later.
+`go-scaffolds` is **not a Go project** — it is a [Copier](https://copier.readthedocs.io/) template collection plus reusable GitHub Actions workflows. There is no Go module, no build, and no test suite at the repo root. The "code" here is Jinja-templated source that gets rendered into *generated* downstream Go projects. Generated libraries use Apache-2.0; generated CLIs and MCP servers use AGPL-3.0-or-later.
 
 ## Layout
 
