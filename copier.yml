@@ -42,7 +42,7 @@ author_email:
 go_version:
   type: str
   help: Go version
-  default: "1.26"
+  default: "1.27"
 
 # cli-only: which CLI framework skeleton to render.
 cli_framework:
